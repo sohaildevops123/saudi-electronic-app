@@ -6,7 +6,7 @@ pipeline {
         IMAGE_BACKEND    = 'saudi-electronics-backend'
         IMAGE_FRONTEND   = 'saudi-electronics-frontend'
         // Uses build number and Git commit hash if available
-        BUILD_TAG        = "${env.BUILD_NUMBER ?: '1'}"
+        IMAGE_TAG        = "${env.BUILD_NUMBER ?: '1'}"
     }
 
     options {
@@ -47,8 +47,30 @@ pipeline {
             steps {
                 echo '=== Stage 4: Building Container Images ==='
                 script {
-                    sh "docker build -t ${IMAGE_BACKEND}:${BUILD_TAG} -t ${IMAGE_BACKEND}:latest ./backend"
-                    sh "docker build -t ${IMAGE_FRONTEND}:${BUILD_TAG} -t ${IMAGE_FRONTEND}:latest ./frontend"
+                    sh "docker build -t ${IMAGE_BACKEND}:${IMAGE_TAG} -t ${IMAGE_BACKEND}:latest ./backend"
+                    sh "docker build -t ${IMAGE_FRONTEND}:${IMAGE_TAG} -t ${IMAGE_FRONTEND}:latest ./frontend"
+                }
+            }
+        }
+
+        stage('Push Docker Images') {
+            steps {
+                echo '=== Stage: Pushing Images to Docker Hub ==='
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-hub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+                    sh "docker tag ${IMAGE_BACKEND}:${IMAGE_TAG} \$DOCKER_USER/saudi-electronics-backend:${IMAGE_TAG}"
+                    sh "docker tag ${IMAGE_BACKEND}:latest \$DOCKER_USER/saudi-electronics-backend:latest"
+                    sh "docker tag ${IMAGE_FRONTEND}:${IMAGE_TAG} \$DOCKER_USER/saudi-electronics-frontend:${IMAGE_TAG}"
+                    sh "docker tag ${IMAGE_FRONTEND}:latest \$DOCKER_USER/saudi-electronics-frontend:latest"
+                    sh "docker push \$DOCKER_USER/saudi-electronics-backend:${IMAGE_TAG}"
+                    sh "docker push \$DOCKER_USER/saudi-electronics-backend:latest"
+                    sh "docker push \$DOCKER_USER/saudi-electronics-frontend:${IMAGE_TAG}"
+                    sh "docker push \$DOCKER_USER/saudi-electronics-frontend:latest"
+                    sh 'docker logout'
                 }
             }
         }
@@ -68,7 +90,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo '=== Stage 6: Deployment ==='
-                echo "Successfully validated and ready for deployment: ${APP_NAME} (Build ${BUILD_TAG})"
+                echo "Successfully validated and ready for deployment: ${APP_NAME} (Build ${IMAGE_TAG})"
             }
         }
     }
