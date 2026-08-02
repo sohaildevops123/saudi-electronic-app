@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME = '-electronics-shop'
+        APP_NAME = 'saudi-electronics-shop'
         IMAGE_BACKEND = 'saudi-electronics-backend'
         IMAGE_FRONTEND = 'saudi-electronics-frontend'
         IMAGE_TAG = "${BUILD_NUMBER}"
@@ -49,15 +49,6 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images') {
-            steps {
-                echo '===== Building Docker Images ====='
-
-                sh """
-                docker build -t ${IMAGE_BACKEND}:${IMAGE_TAG} -t ${IMAGE_BACKEND}:latest ./backend
-                docker build -t ${IMAGE_FRONTEND}:${IMAGE_TAG} -t ${IMAGE_FRONTEND}:latest ./frontend
-                """
-            }
         }
 
         stage('Push Docker Images') {
