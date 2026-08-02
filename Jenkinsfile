@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        APP_NAME = 'saudi-electronics-shop'
+        APP_NAME = '-electronics-shop'
         IMAGE_BACKEND = 'saudi-electronics-backend'
         IMAGE_FRONTEND = 'saudi-electronics-frontend'
         IMAGE_TAG = "${BUILD_NUMBER}"
