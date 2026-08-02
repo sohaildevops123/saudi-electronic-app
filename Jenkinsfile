@@ -49,6 +49,15 @@ pipeline {
             }
         }
 
+        stage('Build Docker Images') {
+            steps {
+                echo '===== Building Docker Images ====='
+
+                sh """
+                docker build -t ${IMAGE_BACKEND}:${IMAGE_TAG} -t ${IMAGE_BACKEND}:latest ./backend
+                docker build -t ${IMAGE_FRONTEND}:${IMAGE_TAG} -t ${IMAGE_FRONTEND}:latest ./frontend
+                """
+            }
         }
 
         stage('Push Docker Images') {
