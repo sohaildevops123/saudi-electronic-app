@@ -1,55 +1,71 @@
 # 🇸🇦 Saudi Electronics & Software Solutions Web Application
 
-A full-stack, 3-tier web application built for a Saudi Arabia electronic shop selling hardware (Monitors, Cables, Desktops, HDDs, SSDs, Pendrives) and providing software solutions (Flashing, OS Installation, System Diagnostics).
-
----
+A full-stack, 3-tier web application for a Saudi Arabia electronics shop selling hardware (Monitors, Cables, Desktops, HDDs, SSDs, Pendrives) and offering software services (Flashing, OS Installation, System Diagnostics).
 
 ## 🛠️ Stack & Architecture
 
-- **Frontend**: Vite + React + Tailwind CSS + Lucide Icons (Runs on port `5173`)
-- **Backend API**: Node.js + Express.js (Runs on port `5000`)
-- **Database**: PostgreSQL 16 (Runs on port `5432` with automated schema & seed script)
-- **DevOps**: Docker & Docker Compose (`docker-compose.yml`, `frontend/Dockerfile`, `backend/Dockerfile`)
+- **Frontend:** Vite + React + Tailwind CSS + Lucide Icons (port `5173`)
+- **Backend API:** Node.js + Express.js (port `5000`)
+- **Database:** PostgreSQL 16 (port `5432`, automated schema and seed script)
+- **DevOps:** Docker, Docker Compose, Jenkins, Docker Hub, AWS EC2
 
----
+## 🔄 CI/CD Pipeline
 
-## 🚀 How to Run with Docker Compose
+GitHub -> Jenkins (webhook) -> Docker Hub -> AWS EC2
 
-1. Open your terminal in this directory:
-   ```bash
-   cd "C:\Users\Fahad Hussain\.gemini\antigravity\scratch\saudi-electronics-shop"
-   ```
+1. Checkout code
+2. Validate Docker Compose
+3. Backend validation
+4. Frontend build validation
+5. Build and push Docker images to Docker Hub
 
-2. Start all 3 containers with build:
-   ```bash
-   docker compose up --build
-   ```
+## 🚀 Run with Docker Compose
 
-3. Access the services:
-   - **Frontend Web App**: [http://localhost:5173](http://localhost:5173)
-   - **Backend REST API**: [http://localhost:5000/api/health](http://localhost:5000/api/health)
-   - **PostgreSQL DB**: `localhost:5432` (User: `postgres`, Pass: `saudi_electronics_2026`, DB: `saudi_electronics_db`)
+1. Clone the repo:
 
----
+```
+git clone https://github.com/sohaildevops123/saudi-electronic-app.git
+cd saudi-electronic-app
+```
+
+2. Create your env file and set your own database password:
+
+```
+cp .env.example .env
+```
+
+3. Build and start all 3 containers:
+
+```
+docker compose up -d --build
+```
+
+4. Open the services:
+   - Frontend: http://localhost:5173
+   - Backend health check: http://localhost:5000/api/health
+   - PostgreSQL: `localhost:5432` (credentials come from your `.env` file)
 
 ## 🖥️ Local Development (Without Docker)
 
-### 1. Database Setup
-Ensure PostgreSQL is running and execute `db/init.sql`.
+1. **Database:** make sure PostgreSQL is running, then execute `db/init.sql`.
+2. **Backend:**
 
-### 2. Backend Setup
-```bash
+```
 cd backend
 npm install
 npm run dev
 ```
 
-### 3. Frontend Setup
-```bash
+3. **Frontend:**
+
+```
 cd frontend
 npm install
 npm run dev
 ```
-## Webhook test
-Testing Jenkins GitHub 
-for weebhook
+
+## 📌 Future Improvements
+
+- Automated deploy stage in the pipeline
+- Move secrets to Jenkins credentials
+- Add automated tests
