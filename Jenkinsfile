@@ -6,6 +6,7 @@ pipeline {
         IMAGE_BACKEND = 'saudi-electronics-backend'
         IMAGE_FRONTEND = 'saudi-electronics-frontend'
         IMAGE_TAG = "${BUILD_NUMBER}"
+        POSTGRES_PASSWORD = credentials('database-password')
     }
 
     options {
@@ -30,11 +31,19 @@ pipeline {
             }
         }
 
+        stage('Compose Validation') {
+            steps {
+                echo '===== Validating Docker Compose configuration ====='
+                sh 'docker compose config --quiet'
+            }
+        }
+
         stage('Backend Verification') {
             steps {
                 echo '===== Installing Backend Dependencies ====='
                 dir('backend') {
-                    sh 'npm ci || npm install'
+                    sh 'npm ci'
+                    sh 'npm run check'
                 }
             }
         }
@@ -43,7 +52,7 @@ pipeline {
             steps {
                 echo '===== Building Frontend ====='
                 dir('frontend') {
-                    sh 'npm ci || npm install'
+                    sh 'npm ci'
                     sh 'npm run build'
                 }
             }
@@ -91,15 +100,15 @@ pipeline {
 
                 sh '''
                 docker compose down --remove-orphans || true
-                docker compose up -d --build
+                docker compose up -d --build --wait
                 docker compose ps
                 '''
             }
         }
 
-        stage('Deploy') {
+        stage('Deployment Status') {
             steps {
-                echo "Deployment completed successfully."
+                echo "Images were published; a deployment target is not configured yet."
             }
         }
     }

@@ -4,20 +4,22 @@ A full-stack, 3-tier web application for a Saudi Arabia electronics shop selling
 
 ## 🛠️ Stack & Architecture
 
-- **Frontend:** Vite + React + Tailwind CSS + Lucide Icons (port `5173`)
-- **Backend API:** Node.js + Express.js (port `5000`)
+- **Frontend:** Vite 8 + React 19 + Tailwind CSS 4 + Lucide Icons (port `5173`)
+- **Backend API:** Node.js 24 + Express 5 (port `5000`)
 - **Database:** PostgreSQL 16 (port `5432`, automated schema and seed script)
 - **DevOps:** Docker, Docker Compose, Jenkins, Docker Hub, AWS EC2
 
 ## 🔄 CI/CD Pipeline
 
-GitHub -> Jenkins (webhook) -> Docker Hub -> AWS EC2
+GitHub -> Jenkins (webhook) -> Docker Hub
 
 1. Checkout code
 2. Validate Docker Compose
 3. Backend validation
 4. Frontend build validation
 5. Build and push Docker images to Docker Hub
+
+Configure a Jenkins Secret text credential with ID `database-password` for the Compose integration stage. Docker Hub publishing uses the `docker-hub-credentials` username/password credential.
 
 ## 🚀 Run with Docker Compose
 
@@ -67,5 +69,5 @@ npm run dev
 ## 📌 Future Improvements
 
 - Automated deploy stage in the pipeline
-- Move secrets to Jenkins credentials
-- Add automated tests
+- Configure an actual AWS EC2 deployment target
+- Expand automated API and frontend tests
