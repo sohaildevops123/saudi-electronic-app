@@ -56,12 +56,18 @@ router.get('/categories', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    const productId = Number(id);
+
+    if (!/^[1-9]\d*$/.test(id) || !Number.isSafeInteger(productId) || productId > 2147483647) {
+      return res.status(400).json({ success: false, message: 'Product ID must be a positive integer' });
+    }
+
     const { rows } = await pool.query(
       `SELECT p.*, c.name_en as category_name_en, c.name_ar as category_name_ar, c.slug as category_slug
        FROM products p
        LEFT JOIN categories c ON p.category_id = c.id
        WHERE p.id = $1`,
-      [id]
+      [productId]
     );
 
     if (rows.length === 0) {

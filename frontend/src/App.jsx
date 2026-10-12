@@ -16,6 +16,9 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [services, setServices] = useState([]);
+  const [isProductsLoading, setIsProductsLoading] = useState(true);
+  const [hasProductError, setHasProductError] = useState(false);
+  const [productsRetryKey, setProductsRetryKey] = useState(0);
   
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -57,27 +60,40 @@ export default function App() {
 
   // Fetch products whenever category, search term, or sort option changes
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchProducts = async () => {
+      setIsProductsLoading(true);
+      setHasProductError(false);
+
       try {
         const queryParams = new URLSearchParams();
         if (selectedCategory !== 'all') queryParams.append('category', selectedCategory);
         if (searchTerm) queryParams.append('search', searchTerm);
         if (sortOption !== 'default') queryParams.append('sort', sortOption);
 
-        const res = await fetch(`/api/products?${queryParams.toString()}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            setProducts(data.data);
-          }
-        }
+        const res = await fetch(`/api/products?${queryParams.toString()}`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) throw new Error('Product request failed');
+
+        const data = await res.json();
+        if (!data.success || !Array.isArray(data.data)) throw new Error('Invalid product response');
+        setProducts(data.data);
       } catch (err) {
+        if (err.name === 'AbortError') return;
         console.error('Error fetching products:', err);
+        setProducts([]);
+        setHasProductError(true);
+      } finally {
+        if (!controller.signal.aborted) setIsProductsLoading(false);
       }
     };
 
     fetchProducts();
-  }, [selectedCategory, searchTerm, sortOption]);
+
+    return () => controller.abort();
+  }, [selectedCategory, searchTerm, sortOption, productsRetryKey]);
 
   // Cart Add Handler
   const handleAddToCart = (product) => {
@@ -136,6 +152,9 @@ export default function App() {
           onAddToCart={handleAddToCart}
           sortOption={sortOption}
           setSortOption={setSortOption}
+          isLoading={isProductsLoading}
+          hasError={hasProductError}
+          onRetry={() => setProductsRetryKey((key) => key + 1)}
         />
 
         {/* Software Solutions Section */}

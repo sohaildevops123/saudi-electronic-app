@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ProductCard from './ProductCard';
-import { Filter, ArrowUpDown, Monitor, Cpu, Cable, HardDrive, Usb } from 'lucide-react';
+import { Filter, ArrowUpDown, Monitor, Cpu, Cable, HardDrive, Usb, LoaderCircle, RefreshCw } from 'lucide-react';
 
 export default function ProductList({ 
   products, 
@@ -11,7 +11,10 @@ export default function ProductList({
   cart,
   onAddToCart,
   sortOption,
-  setSortOption
+  setSortOption,
+  isLoading,
+  hasError,
+  onRetry
 }) {
   const isAr = lang === 'ar';
 
@@ -86,7 +89,26 @@ export default function ProductList({
       </div>
 
       {/* Products Grid */}
-      {products.length === 0 ? (
+      {isLoading ? (
+        <div role="status" aria-live="polite" className="flex items-center justify-center gap-3 py-16 text-slate-400">
+          <LoaderCircle className="w-5 h-5 animate-spin text-emerald-400" />
+          <p>{isAr ? 'جارٍ تحميل المنتجات...' : 'Loading products...'}</p>
+        </div>
+      ) : hasError ? (
+        <div role="alert" className="text-center py-16 glass-panel rounded-2xl border border-slate-800">
+          <p className="text-slate-300 text-base mb-4">
+            {isAr ? 'تعذر تحميل المنتجات. تحقق من اتصالك وحاول مرة أخرى.' : 'Could not load products. Check your connection and try again.'}
+          </p>
+          <button
+            type="button"
+            onClick={onRetry}
+            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold px-4 py-2.5 rounded-lg transition-colors"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>{isAr ? 'حاول مرة أخرى' : 'Try again'}</span>
+          </button>
+        </div>
+      ) : products.length === 0 ? (
         <div className="text-center py-16 glass-panel rounded-2xl border border-slate-800">
           <p className="text-slate-400 text-base">
             {isAr ? 'لا توجد منتجات مطابقة لجميع معايير البحث الحالية.' : 'No products found matching the criteria.'}
