@@ -28,7 +28,7 @@ git clone https://github.com/sohaildevops123/saudi-electronic-app.git
 cd saudi-electronic-app
 ```
 
-2. Create your env file and set your own database password:
+2. Create your local env file and replace the example database password with a private value:
 
 ```
 cp .env.example .env
